@@ -1,64 +1,36 @@
 Param(
-    [Parameter(Mandatory = $True)][string]$templateLibraryName = "name of template",
-    [Parameter(Mandatory = $True)][string]$templateLibraryVersion = "version of template",
+    [Parameter(Mandatory = $false)][string]$templateLibraryName = "keyvaults",
     [string]$templateName = "azuredeploy.json",
-    [string]$containerName = "library-dev",
-    [string]$prodContainerName = "library",
-    [string]$storageRG = "PwS2-Infra-Storage-RG",
-    [string]$storageAccountName = "azpwsdeploytpnjitlh3orvq",
-    [string]$Location = "canadacentral"
+    [string]$Location = "canadacentral",
+    [string]$subscription = "2de839a0-37f9-4163-a32a-e1bdb8d6eb7e"
 )
-
-function Output-DeploymentName {
-    param( [string]$Name)
-
-    $pattern = '[^a-zA-Z0-9-]'
-
-    # Remove illegal characters from deployment name
-    $Name = $Name -replace $pattern, ''
-
-    # Truncate deplayment name to 64 characters
-    $Name.subString(0, [System.Math]::Min(64, $Name.Length))
-}
-$devBaseTemplateUrl = "https://$storageAccountName.blob.core.windows.net/$containerName/arm"
-$prodBaseTemplateUrl = "https://$storageAccountName.blob.core.windows.net/$prodContainerName/arm"
 
 #******************************************************************************
 # Script body
 # Execution begins here
 #******************************************************************************
-$ErrorActionPreference = "Stop"
 
-# Cleanup old jobs
-Get-Job | Remove-Job
+# Make sure we update code to git
+git add . ; git commit -m "Update validation" ; git push origin dev
 
-Set-AzureRmCurrentStorageAccount -ResourceGroupName $storageRG -Name $storageAccountName
-    
-#Create the SaS token for the dev contrainer
-$devToken = New-AzureStorageContainerSASToken -Name $containerName -Permission r -ExpiryTime (Get-Date).AddMinutes(30.0)
-$prodToken = New-AzureStorageContainerSASToken -Name $prodContainerName -Permission r -ExpiryTime (Get-Date).AddMinutes(30.0)
+Select-AzureRmSubscription -Subscription $subscription
 
+# Cleanup validation resource content in case it did not properly completed and left over components are still lingeringcd
+Write-Host "Cleanup validation resource content...";
+New-AzureRmResourceGroupDeployment -ResourceGroupName PwS2-validate-keyvaults-RG -Mode Complete -TemplateFile (Resolve-Path "$PSScriptRoot\parameters\cleanup.json") -Force -Verbose
 
 # Start the deployment
-Write-Host "Starting deployment...";
+Write-Host "Starting validation deployment...";
 
-# Building dependencies needed for the server validation
-New-AzureRmDeployment -Location $Location -Name "dependancy-$templateLibraryName-Build-resourcegroups" -TemplateUri ("$prodBaseTemplateUrl/resourcegroups/20190207.2/$templateName" + $prodToken) -TemplateParameterFile (Resolve-Path "$PSScriptRoot\dependancy-resourcegroups-canadacentral.parameters.json") -containerSasToken $prodToken -Verbose
-Get-Job | Wait-Job
-Get-Job | Receive-Job
+New-AzureRmDeployment -Location $Location -Name "Validate-keyvaults-template" -TemplateUri "https://raw.githubusercontent.com/canada-ca/accelerators_accelerateurs-azure/master/Templates/arm/masterdeploy/20190319.1/masterdeploysub.json" -TemplateParameterFile (Resolve-Path -Path "$PSScriptRoot\parameters\masterdeploysub.parameters.json") -Verbose;
 
-if (Get-Job -State Failed) {
+$provisionningState = (Get-AzureRmDeployment -Name "Validate-keyvaults-template").ProvisioningState
+
+if ($provisionningState -eq "Failed") {
     Write-Host "One of the jobs was not successfully created... exiting..."
     exit
 }
 
-# Cleanup old jobs before running new deployments
-Get-Job | Remove-Job
-
-# Validating server template
-#Write-Host New-AzureRmResourceGroupDeployment -ResourceGroupName PwS2-validate-keyvaults-1-RG -Name "validate-$templateLibraryName-Build-$templateLibraryName" -TemplateUri "$devBaseTemplateUrl/keyvaults/$templateLibraryVersion/$templateName" -TemplateParameterFile (Resolve-Path "$PSScriptRoot\validate-keyvaults.parameters.json") -_debugLevel "requestContent,responseContent" -Verbose
-New-AzureRmResourceGroupDeployment -ResourceGroupName PwS2-validate-keyvaults-1-RG -Name "validate-$templateLibraryName-Build-$templateLibraryName" -TemplateUri "$devBaseTemplateUrl/keyvaults/$templateLibraryVersion/$templateName" -TemplateParameterFile (Resolve-Path "$PSScriptRoot\validate-keyvaults.parameters.json") -_debugLevel "requestContent,responseContent" -Verbose
-
 # Cleanup validation resource content
 Write-Host "Cleanup validation resource content...";
-New-AzureRmResourceGroupDeployment -ResourceGroupName PwS2-validate-keyvaults-1-RG -Mode Complete -TemplateFile (Resolve-Path "$PSScriptRoot\cleanup.json") -Force -Verbose
+New-AzureRmResourceGroupDeployment -ResourceGroupName PwS2-validate-keyvaults-RG -Mode Complete -TemplateFile (Resolve-Path "$PSScriptRoot\parameters\cleanup.json") -Force -Verbose

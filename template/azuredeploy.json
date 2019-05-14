@@ -72,6 +72,12 @@
                 "parameters": {
                     "keyvaultObj": {
                         "value": "[parameters('keyvaultArray')[copyIndex()]]"
+                    },
+                    "containerSaSToken": {
+                        "value": "[parameters('containerSasToken')]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
                     }
                 },
                 "templateLink": {

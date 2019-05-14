@@ -82,14 +82,20 @@
             "resourceGroup": "[parameters('keyvaultArray')[copyIndex()].resourceGroup]",
             "dependsOn": [],
             "copy": {
-                    "name": "obj",
-                    "count": "[length(parameters('keyvaultArray'))]"
+                "name": "obj",
+                "count": "[length(parameters('keyvaultArray'))]"
             },
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
                     "keyvaultObj": {
                         "value": "[parameters('keyvaultArray')[copyIndex()]]"
+                    },
+                    "containerSaSToken": {
+                        "value": "[parameters('containerSasToken')]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
                     }
                 },
                 "templateLink": {
@@ -99,7 +105,7 @@
                 "debugSetting": {
                     "detailLevel": "[parameters('_debugLevel')]"
                 }
-            }  
+            }
         }
     ],
     "outputs": {}

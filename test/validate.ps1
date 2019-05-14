@@ -11,6 +11,7 @@ Param(
 #******************************************************************************
 
 # Make sure we update code to git
+git branch dev ; git checkout dev ; git pull origin dev
 git add . ; git commit -m "Update validation" ; git push origin dev
 
 Select-AzureRmSubscription -Subscription $subscription
@@ -22,7 +23,7 @@ New-AzureRmResourceGroupDeployment -ResourceGroupName PwS2-validate-keyvaults-RG
 # Start the deployment
 Write-Host "Starting validation deployment...";
 
-New-AzureRmDeployment -Location $Location -Name "Validate-keyvaults-template" -TemplateUri "https://raw.githubusercontent.com/canada-ca/accelerators_accelerateurs-azure/master/Templates/arm/masterdeploy/20190319.1/masterdeploysub.json" -TemplateParameterFile (Resolve-Path -Path "$PSScriptRoot\parameters\masterdeploysub.parameters.json") -Verbose;
+New-AzureRmDeployment -Location $Location -Name "Validate-keyvaults-template" -TemplateUri "https://raw.githubusercontent.com/canada-ca-azure-templates/masterdeploy/20190514/template/masterdeploysub.json" -TemplateParameterFile (Resolve-Path -Path "$PSScriptRoot\parameters\masterdeploysub.parameters.json") -Verbose;
 
 $provisionningState = (Get-AzureRmDeployment -Name "Validate-keyvaults-template").ProvisioningState
 

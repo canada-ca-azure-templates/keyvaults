@@ -10,6 +10,9 @@ Param(
 # Execution begins here
 #******************************************************************************
 
+# Make sure we update code to git
+git add . ; git commit -m "Update validation" ; git push origin dev
+
 Select-AzureRmSubscription -Subscription $subscription
 
 # Cleanup validation resource content in case it did not properly completed and left over components are still lingeringcd

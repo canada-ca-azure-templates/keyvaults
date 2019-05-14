@@ -103,7 +103,7 @@
                     }
                 },
                 {
-                    "name": "PwS2-validate-[unique]-no-secrets",
+                    "name": "PwS2-validate-nose[unique]",
                     "resourceGroup": "PwS2-validate-keyvaults-RG",
                     "sku": "Standard",
                     "enabledForDeployment": true,

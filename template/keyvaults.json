@@ -2,6 +2,17 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "containerSasToken": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located including a trailing '/'"
+            },
+            "defaultValue": "[deployment().properties.templateLink.uri]"
+        },
         "keyvaultObj": {
             "type": "object",
             "metadata": {
@@ -9,7 +20,9 @@
             }
         }
     },
-    "variables": {},
+    "variables": {
+        "secretsURI": "[concat(uri(parameters('_artifactsLocation'), 'nested/secrets.json'), parameters('containerSasToken'))]"
+    },
     "functions": [
         {
             "namespace": "pspc",
@@ -106,21 +119,25 @@
             }
         },
         {
-            "comments": "Change the temporary secret created by this template to a value of your choice in the Azure Portal",
-            "type": "Microsoft.KeyVault/vaults/secrets",
-            "name": "[concat(pspc.getValidKeyvaultName(pspc.getUniqueKeyvaultName(parameters('keyvaultObj').name)), '/', parameters('keyvaultObj').secrets[copyIndex()].name)]",
-            "apiVersion": "2016-10-01",
-            "location": "[resourceGroup().location]",
-            "copy": {
-                "name": "secret",
-                "count": "[length(parameters('keyvaultObj').secrets)]"
-            },
-            "properties": {
-                "value": "[parameters('keyvaultObj').secrets[copyIndex()].properties.value]"
-            },
+            "type": "Microsoft.Resources/deployments",
+            "condition": "[contains(parameters('keyvaultObj'), 'secrets')]",
+            "name": "Deploy-secrets",
+            "apiVersion": "2018-02-01",
             "dependsOn": [
                 "[pspc.getValidKeyvaultName(pspc.getUniqueKeyvaultName(parameters('keyvaultObj').name))]"
-            ]
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('secretsURI')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "keyvaultObj": {
+                        "value": "[parameters('keyvaultObj')]"
+                    }
+                }
+            }
         }
     ],
     "outputs": {}

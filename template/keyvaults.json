@@ -121,7 +121,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "condition": "[contains(parameters('keyvaultObj'), 'secrets')]",
-            "name": "Deploy-secrets",
+            "name": "[concat('Deploy-Secrets-', pspc.getValidKeyvaultName(pspc.getUniqueKeyvaultName(parameters('keyvaultObj').name)))]",
             "apiVersion": "2018-02-01",
             "dependsOn": [
                 "[pspc.getValidKeyvaultName(pspc.getUniqueKeyvaultName(parameters('keyvaultObj').name))]"

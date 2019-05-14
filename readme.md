@@ -155,11 +155,10 @@ This is helpfull to ensure there will be no keyvault duplicates in Azure as it n
 
 ## History
 
-| Date     | Change                                                                                                     |
-| -------- | ---------------------------------------------------------------------------------------------------------- |
-| 20181214 | Implementing new template name as template.json                                                            |
-| 20190205 | Cleanup template folder                                                                                    |
-| 20190226 | Add the ability to use a special token ([unique]) in the keyvault name to ensure keyvault name uniqueness. |
-| 20190301 | Transformed the template to be resourcegroup deployed rather than subscription level deployed.             |
-| 20190426 | Updated documentation                                                                                      |
-| 20190501 | Updated documentation                                                                                      |
+| Date     | Release                                                                          | Change                                                                                                     |
+| -------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 20181214 |                                                                                  | Implementing new template name as template.json                                                            |
+| 20190205 |                                                                                  | Cleanup template folder                                                                                    |
+| 20190226 |                                                                                  | Add the ability to use a special token ([unique]) in the keyvault name to ensure keyvault name uniqueness. |
+| 20190301 |                                                                                  | Transformed the template to be resourcegroup deployed rather than subscription level deployed.             |
+| 20190514 | [20190514](https://github.com/canada-ca-azure-templates/keyvaults/tree/20190514) | Updated documentation                                                                                      |

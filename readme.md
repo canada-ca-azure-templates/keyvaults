@@ -87,7 +87,7 @@ The following security controls can be met through configuration of this templat
 | enabledForDiskEncryption     | boolean | No       | Property to specify whether Azure Disk Encryption is permitted to retrieve secrets from the vault and unwrap keys. - true or false                                             |
 | accessPoliciesObjectId       | string  | Yes      | The object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies. |
 | networkAcls                  | object  | Yes      | A collection of rules governing the accessibility of the vault from specific network locations. - [networkAcls object](#networkacls-object)                                    |
-| secrets                      | array   | Yes      | An array of secrets - [Secrets Objects](#secrets-object)                                                                                                                       |
+| secrets                      | array   | No       | An array of secrets - [Secrets Objects](#secrets-object)                                                                                                                       |
 | tagValues                    | object  | Yes      | An object of tags - [Tag Object](#tag-object)                                                                                                                                  |
 
 #### Name Format Options
@@ -161,4 +161,4 @@ This is helpfull to ensure there will be no keyvault duplicates in Azure as it n
 | 20190205 |                                                                                  | Cleanup template folder                                                                                    |
 | 20190226 |                                                                                  | Add the ability to use a special token ([unique]) in the keyvault name to ensure keyvault name uniqueness. |
 | 20190301 |                                                                                  | Transformed the template to be resourcegroup deployed rather than subscription level deployed.             |
-| 20190514 | [20190514](https://github.com/canada-ca-azure-templates/keyvaults/tree/20190514) | Updated documentation                                                                                      |
+| 20190514 | [20190514](https://github.com/canada-ca-azure-templates/keyvaults/tree/20190514) | Updated documentation and made secrets optional                                                            |
